@@ -1,0 +1,13 @@
+
+version: 2
+
+sources:
+  - name: gee_raw_data
+    database: "{{ env_var("BIGQUERY_PROJECT") }}" # Replace with your GCP Project ID environment variable
+    schema: "{{ env_var("BIGQUERY_DATASET") }}" # Replace with your BigQuery Dataset ID environment variable
+    tables:
+      - name: ndvi_raw
+      - name: temperature_raw
+      - name: rainfall_raw
+      - name: soil_raw
+      - name: cropland_polygons

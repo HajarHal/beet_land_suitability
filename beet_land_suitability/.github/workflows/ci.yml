@@ -1,0 +1,50 @@
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install dbt-bigquery # Install dbt adapter separately for testing
+
+    - name: Lint Python code (e.g., with flake8)
+      run: |
+        pip install flake8
+        flake8 airflow flask_app
+
+    - name: Test dbt models
+      run: |
+        # Set up dummy BigQuery credentials for dbt test (replace with actual service account in real CI)
+        # For a CV project, we might just validate syntax or run against a mock/dev dataset
+        # This is a placeholder for actual dbt testing against BigQuery
+        echo "Running dbt debug and test..."
+        cd dbt
+        dbt debug --profile beet_land_suitability
+        # dbt seed --profile beet_land_suitability # Seed data if needed for tests
+        # dbt run --profile beet_land_suitability
+        # dbt test --profile beet_land_suitability
+
+    # Add steps for Docker build, push to registry, and deployment if applicable
+    # - name: Build Docker image
+    #   run: docker build -t your-docker-repo/beet-suitability:latest .
+    # - name: Push Docker image
+    #   run: docker push your-docker-repo/beet-suitability:latest

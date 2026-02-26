@@ -1,0 +1,15 @@
+feature,period,optimal_min,optimal_max,acceptable_min,acceptable_max
+ndvi,germination_early_growth,0.1,0.3,0.05,0.4
+ndvi,vegetative_growth,0.6,0.8,0.4,0.9
+ndvi,sugar_accumulation,0.7,0.9,0.5,0.95
+temperature,germination_early_growth,10,20,5,25
+temperature,vegetative_growth,20,30,15,35
+temperature,sugar_accumulation,15,25,10,30
+rainfall,germination_early_growth,50,100,30,150
+rainfall,vegetative_growth,100,200,50,300
+rainfall,sugar_accumulation,80,150,40,200
+soil_ph,static,6.0,7.5,5.5,8.0
+soil_cec,static,15,30,10,40
+clay,static,20,40,15,50
+silt,static,30,50,25,60
+sand,static,30,60,20,70

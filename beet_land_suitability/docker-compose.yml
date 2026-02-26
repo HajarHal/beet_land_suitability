@@ -1,0 +1,79 @@
+
+version: '3.8'
+x-airflow-common:
+  &airflow-common
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.8.1-python3.11}
+  environment:
+    &airflow-common-env
+    AIRFLOW_HOME: /opt/airflow
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__WEBSERVER__RBAC: "True"
+    AIRFLOW__WEBSERVER__AUTHENTICATE: "False"
+    AIRFLOW__WEBSERVER__AUTH_BACKEND: 'airflow.providers.cncf.kubernetes.auth_backend.kubernetes_auth'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CORE__LOAD_DAGS_IN_WEBSERVER: "True"
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: 30
+    AIRFLOW__SCHEDULER__COLLECT_STATS_INTERVAL: 10
+    AIRFLOW__SCHEDULER__NUM_RUNS: 10
+    AIRFLOW__SCHEDULER__MAX_ACTIVE_TASKS_PER_DAG: 16
+    AIRFLOW__SCHEDULER__MAX_ACTIVE_TASKS: 32
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: 30
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: "True"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_SIZE: 10
+    AIRFLOW__DATABASE__SQL_ALCHEMY_POOL_RECYCLE: 3600
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_MUTEX_TIMEOUT: 60
+    AIRFLOW__DATABASE__SQL_ALCHEMY_SCHEMA: public
+    AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_WEBSERVER_SECRET_KEY:-$(openssl rand -hex 16)}
+    # GEE and GCP related environment variables
+    GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/gcp_key.json
+    GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+    BIGQUERY_DATASET: ${BIGQUERY_DATASET}
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/dags_dependencies:/opt/airflow/dags_dependencies
+    - ./dbt:/opt/airflow/dbt
+    - ./gcp_key.json:/opt/airflow/gcp_key.json:ro # Mount your GCP service account key here
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow-init
+    entrypoint: /bin/bash -c "chown -R airflow:$(id -g) /opt/airflow && airflow db migrate && airflow users create -u admin -f admin -l admin -r Admin -e admin@example.com -p admin"
+    user: "0"
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow-webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow-scheduler
+    command: scheduler

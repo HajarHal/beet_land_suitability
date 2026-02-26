@@ -1,0 +1,33 @@
+name: 'beet_land_suitability'
+version: '1.0.0'
+config-version: 2
+
+profile: 'beet_land_suitability'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+source-paths: ["sources"]
+data-paths: ["data"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+asset-paths: ["assets"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+models:
+  beet_land_suitability:
+    +schema: 'dbt_marts'
+    staging:
+      +schema: 'dbt_staging'
+      +materialized: view
+    intermediate:
+      +schema: 'dbt_intermediate'
+      +materialized: view
+    marts:
+      +schema: 'dbt_marts'
+      +materialized: table
