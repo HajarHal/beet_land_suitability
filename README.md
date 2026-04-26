@@ -29,7 +29,8 @@ The project includes a comprehensive Looker Studio dashboard that provides:
 - **Factor Analysis**: Breakdown of suitability by soil, temperature, NDVI, and rainfall.
 - **Temporal Trends**: Environmental metrics compared across different agricultural growth stages.
 
-![Beet Crop Suitability Dashboard](looker_dashboard.png)
+<img width="1588" height="1190" alt="looker_dashboard" src="https://github.com/user-attachments/assets/658b8240-9e3a-4cbc-b9c4-b18cb7c1a1fe" />
+
 
 ## Project Structure
 
