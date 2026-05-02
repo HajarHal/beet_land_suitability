@@ -20,6 +20,7 @@ The architecture follows a modern data platform pattern:
 2. **Loading**: Raw data is ingested into BigQuery.
 3. **Transformation**: dbt models harmonize disparate datasets and apply weighted suitability logic.
 4. **Visualization**: Looker Studio connects directly to BigQuery mart tables to visualize crop suitability.
+<img width="592" height="350" alt="image" src="https://github.com/user-attachments/assets/77c586eb-9ad6-4e46-a514-95f8aa1c6f32" />
 
 ## Visualizations
 
